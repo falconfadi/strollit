@@ -16,6 +16,19 @@ class CategoryController extends Controller
 
     public function index()
     {
-        return $this->response("success", $this->categoryService->get());
+        return $this->response("done!!", $this->categoryService->get());
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string',
+            'content' => 'string|nullable',
+           /* 'main_id' => 'required|integer|exists:categories,id',*/
+            'discount' => 'integer',
+        ]);
+
+        $category = $this->categoryService->store($data);
+        return $this->response("New category added successfully", $category);
     }
 }

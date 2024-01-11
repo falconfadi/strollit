@@ -11,40 +11,52 @@ class CategoryService
 {
     public function get()
     {
-        $categories ='';
+        $categories = Category::where('user_id',\Auth::id())->get();
         return $categories;
     }
-    public function addRootCategory($user_id)
+    public function storeMain($userId)
     {
-        if (!Category::whereUserId($user_id)->whereNull('parent_id')->exists())
+        $existCategory = Category::where('user_id',$userId)->whereNull('main_id')->first();
+        if (!$existCategory)
+        {
             return Category::create([
-                'name' => 'My root category',
-                'user_id' => $user_id,
+                'title' => 'Main category',
+                'content' => '',
+                'main_id' => null,
+                'user_id' => $userId,
                 'level' => 0
             ]);
-        else return null;
+        }else{
+            return null;
+        }
     }
-    public function addCategory($name,  $parent_id, $desc = null, $discount_percentage = null)
+    public function store($data)
     {
-        $parent = Category::find($parent_id);
-        if ($parent->user_id != \Auth::id())
-            throw new UnauthorizedException('UnAuthorized',403);
-        if ($parent->items()->exists())
-            throw new BadRequestException('This category has items');
-        if ($parent->level > 3)
-            throw new BadRequestException('Can\'t add more categories');
+        $userId = \Auth::id();
+        $mainCategory = Category::where('user_id',$userId)->where('level',0)->first();
+        if(!$mainCategory){
+            $mainCategory = $this->storeMain($userId);
+        }
 
+        if ($mainCategory->user_id != $userId)
+            throw new UnauthorizedException('Not authorized',403);
+//        if ($mainCategory->items()->exists())
+//            throw new BadRequestException('This category has items');
+        if ($mainCategory->level >= 4)
+            throw new BadRequestException('maximum level of categories');
+        $newLevel = $mainCategory->level;
+        $newLevel++;
         return Category::create([
-            'name' => $name,
-            'description' => $desc,
-            'parent_id' => $parent_id,
-            'user_id' => \Auth::id(),
-            'level' => $parent->level + 1,
-            'discount_percentage' => $discount_percentage
+            'title' => $data['title'],
+            'content' => $data['content'],
+            'main_id' => $mainCategory->id,
+            'user_id' => $userId,
+            'level' => $newLevel,
+            'discount' => $data['discount']
         ]);
     }
 
-    public function updateCategory($id, $updatedData)
+    public function update($id, $updatedData)
     {
         $category = Category::find($id);
         if ($category->user_id != \Auth::id())
@@ -52,7 +64,7 @@ class CategoryService
         return $category->update($updatedData);
     }
 
-    public function deleteCategory($id)
+    public function delete($id)
     {
         $category = Category::find($id);
         if ($category->user_id != \Auth::id())
