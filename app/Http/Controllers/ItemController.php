@@ -4,21 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Services\CategoryService;
+use App\Services\ItemService;
 use Illuminate\Http\Request;
 
-class CategoryController extends Controller
+class ItemController extends Controller
 {
-    private $categoryService;
-    public function __construct(CategoryService $categoryService)
+    private $itemService;
+    public function __construct(ItemService $itemService)
     {
         parent::__construct();
-        $this->categoryService = $categoryService;
+        $this->itemService = $itemService;
     }
 
     public function index()
     {
-        $categories = $this->categoryService->get();
-        return $this->response("done!!", $categories);
+        $items = $this->itemService->get();
+        return $this->response("done!!", $items);
     }
 
     public function store(Request $request)
@@ -29,7 +30,7 @@ class CategoryController extends Controller
             'discount' => 'numeric',
         ]);
 
-        $category = $this->categoryService->store($data);
+        $category = $this->itemService->store($data);
         return $this->response("New category added successfully", $category);
     }
 
@@ -40,7 +41,7 @@ class CategoryController extends Controller
             'content' => 'string|nullable',
             'discount' => 'numeric',
         ]);
-        $this->categoryService->update($categoryId, $data);
+        $this->itemService->update($categoryId, $data);
         return $this->response("Updated successfully");
     }
 

@@ -14,6 +14,22 @@ class Category extends Model
         'content',
         'main_id',
         'user_id',
-        'level'
+        'level',
+        'discount'
     ];
+
+    public function mainCategory()
+    {
+        return $this->belongsTo(Category::class,'main_id');
+    }
+
+    public function subcategories()
+    {
+        return $this->hasMany(Category::class, 'main_id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 }

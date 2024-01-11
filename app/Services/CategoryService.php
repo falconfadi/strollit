@@ -56,12 +56,15 @@ class CategoryService
         ]);
     }
 
-    public function update($id, $updatedData)
+    public function update($id, $data)
     {
+
         $category = Category::find($id);
-        if ($category->user_id != \Auth::id())
-            throw new UnauthorizedException('UnAuthorized',403);
-        return $category->update($updatedData);
+        if($category){
+            if ($category->user_id != \Auth::id())
+                throw new UnauthorizedException('Not authorized',403);
+            return $category->update($data);
+        }
     }
 
     public function delete($id)
