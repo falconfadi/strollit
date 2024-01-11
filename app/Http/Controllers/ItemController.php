@@ -26,15 +26,16 @@ class ItemController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string',
-            'content' => 'string|nullable',
+            'price' => 'required|numeric',
+            'category_id' => 'required',
             'discount' => 'numeric',
         ]);
 
         $category = $this->itemService->store($data);
-        return $this->response("New category added successfully", $category);
+        return $this->response("New Item added successfully", $category);
     }
 
-    public function update(Request $request, $categoryId)
+    public function update(Request $request, $itemId)
     {
         $data = $request->validate([
             'title' => 'required|string',

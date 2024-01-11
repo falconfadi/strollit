@@ -40,7 +40,7 @@ class CategoryService
 
         if ($mainCategory->user_id != $userId)
             throw new UnauthorizedException('Not authorized',403);
-//        if ($mainCategory->items()->exists())
+//        if ($mainCategory->items->count()>0)
 //            throw new BadRequestException('This category has items');
         if ($mainCategory->level >= 4)
             throw new BadRequestException('maximum level of categories');

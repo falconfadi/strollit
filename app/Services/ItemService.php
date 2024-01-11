@@ -12,10 +12,10 @@ class ItemService
 {
     public function get()
     {
-        $items = Item::whereHas('category',function($subQ) {
-            $subQ->where('user_id',\Auth::id());
+        $userId = \Auth::id();
+        return Item::whereHas('category',function($subQ) use($userId) {
+            $subQ->where('user_id', $userId);
         })->get();
-        return $items;
     }
 
     public function store($data)
@@ -24,9 +24,12 @@ class ItemService
         $categoryId = $data['category_id'];
         $category = Category::find($categoryId);
         if($category){
+            // id category belong to other user
             if ($category->user_id != $userId)
                 throw new UnauthorizedException('Not authorized',403);
-
+            // id category has subcategories
+            if ($category->subcategories->count()>0)
+                throw new BadRequestException('This category is not in the last level');
             return Item::create([
                 'title'=> $data['title'],
                 'price'=> $data['price'],
@@ -38,7 +41,6 @@ class ItemService
 
     public function update($id, $data)
     {
-
         $category = Category::find($id);
         if($category){
             if ($category->user_id != \Auth::id())
