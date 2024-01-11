@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Item;
 use App\Services\CategoryService;
 use App\Services\ItemService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\UnauthorizedException;
 
 class ItemController extends Controller
 {
@@ -50,13 +52,18 @@ class ItemController extends Controller
 
     }
 
-    public function destroy($categoryId) {
-        $category = Category::find($categoryId);
-        if($category && $category->level >0){
-            //if not main category
-            $category->delete();
+    public function destroy($itemId) {
+        $userId = \Auth::id();
+        $item = Item::find($itemId);
+        if($item ){
+            if ($item->category->user_id != $userId)
+                throw new UnauthorizedException('Not authorized',403);
+            $item->delete();
+            return $this->response("Deleted successfully #".$itemId);
+        }else{
+            return $this->response("Not Found!!");
         }
 
-        return $this->response("Deleted successfully #".$categoryId);
+
     }
 }

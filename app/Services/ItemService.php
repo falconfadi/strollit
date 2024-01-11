@@ -42,7 +42,6 @@ class ItemService
     public function update($data, $id)
     {
         $userId = \Auth::id();
-
         $item = Item::find($id);
         if($item){
             // id item belong to other user
@@ -50,21 +49,12 @@ class ItemService
                 throw new UnauthorizedException('Not authorized',403);
             return [
                 "message" => "success",
-                'data'=>$item->update($data)];
+                "data" => $item->update($data)];
         }else{
             return [
-                "message"=>"fail",
-                'data'=>"Not Found" ];
+                "message"=> "fail",
+                "data"=> "Not Found!!" ];
         }
     }
 
-    public function delete($id)
-    {
-        $category = Category::find($id);
-        if ($category->user_id != \Auth::id())
-            throw new UnauthorizedException('UnAuthorized',403);
-        if ($category->parent_id == null)
-            throw new UnauthorizedException('You can\'t delete the root category');
-        return $category->delete();
-    }
 }
