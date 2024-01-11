@@ -40,7 +40,7 @@ class CategoryController extends Controller
             'content' => 'string|nullable',
             'discount' => 'numeric',
         ]);
-        $this->categoryService->update($categoryId, $data);
+        $this->categoryService->update($data, $categoryId);
         return $this->response("Updated successfully");
     }
 

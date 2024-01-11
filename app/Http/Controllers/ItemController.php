@@ -39,11 +39,15 @@ class ItemController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string',
-            'content' => 'string|nullable',
+            'price' => 'required|numeric',
             'discount' => 'numeric',
         ]);
-        $this->itemService->update($categoryId, $data);
-        return $this->response("Updated successfully");
+        $result = $this->itemService->update($data, $itemId);
+        if($result['message']=="success")
+            return $this->response("Updated successfully");
+        else
+            return $this->response($result['data']);
+
     }
 
     public function destroy($categoryId) {

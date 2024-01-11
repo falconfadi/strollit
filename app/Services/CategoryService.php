@@ -56,7 +56,7 @@ class CategoryService
         ]);
     }
 
-    public function update($id, $data)
+    public function update($data, $id)
     {
 
         $category = Category::find($id);

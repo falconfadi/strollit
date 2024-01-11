@@ -39,13 +39,22 @@ class ItemService
         }
     }
 
-    public function update($id, $data)
+    public function update($data, $id)
     {
-        $category = Category::find($id);
-        if($category){
-            if ($category->user_id != \Auth::id())
+        $userId = \Auth::id();
+
+        $item = Item::find($id);
+        if($item){
+            // id item belong to other user
+            if ($item->category->user_id != $userId)
                 throw new UnauthorizedException('Not authorized',403);
-            return $category->update($data);
+            return [
+                "message" => "success",
+                'data'=>$item->update($data)];
+        }else{
+            return [
+                "message"=>"fail",
+                'data'=>"Not Found" ];
         }
     }
 
