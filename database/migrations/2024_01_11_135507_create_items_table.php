@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->float('price');
             $table->unsignedBigInteger('category_id');
-            $table->integer('discount')->default(0);
+            $table->integer('discount')->nullable()->default(null);
             $table->timestamps();
             $table->foreign('category_id')->references('id')->on('categories');
 

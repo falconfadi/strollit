@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('main_id')->nullable()->default(null);
             $table->unsignedBigInteger('user_id');
             $table->tinyInteger('level')->default(0);
-            $table->integer('discount')->default(0);
+            $table->integer('discount')->nullable()->default(null);
             $table->timestamps();
 
             $table->foreign('main_id')->references('id')->on('categories');

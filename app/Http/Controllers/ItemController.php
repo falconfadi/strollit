@@ -30,11 +30,16 @@ class ItemController extends Controller
             'title' => 'required|string',
             'price' => 'required|numeric',
             'category_id' => 'required',
-            'discount' => 'numeric',
+
         ]);
 
         $category = $this->itemService->store($data);
         return $this->response("New Item added successfully", $category);
+    }
+
+    public function show($itemId){
+        $item = $this->itemService->getById($itemId);
+        return $this->response("Updated successfully",$item);
     }
 
     public function update(Request $request, $itemId)

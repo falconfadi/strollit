@@ -26,11 +26,15 @@ class CategoryController extends Controller
         $data = $request->validate([
             'title' => 'required|string',
             'content' => 'string|nullable',
-            'discount' => 'numeric',
         ]);
 
         $category = $this->categoryService->store($data);
         return $this->response("New category added successfully", $category);
+    }
+
+    public function show($categoryId){
+        $category = $this->categoryService->getById($categoryId);
+        return $this->response("Updated successfully",$category);
     }
 
     public function update(Request $request, $categoryId)
@@ -46,11 +50,16 @@ class CategoryController extends Controller
 
     public function destroy($categoryId) {
         $category = Category::find($categoryId);
-        if($category && $category->level >0){
+        if($category ){
             //if not main category
-            $category->delete();
+            if( $category->level >0){
+                //if the category is a leaf
+                if(!$category->items && !$category->subcategories)
+                $category->delete();
+            }
+        }else{
+            return $this->response("Not Found!!");
         }
-
         return $this->response("Deleted successfully #".$categoryId);
     }
 }

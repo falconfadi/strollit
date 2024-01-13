@@ -11,9 +11,28 @@ class CategoryService
 {
     public function get()
     {
-        $categories = Category::where('user_id',\Auth::id())->get();
-        return $categories;
+        //get all categories with item by user
+        $categories = Category::with('items')->where('user_id',\Auth::id())->get();
+        $categoriesByDiscount = array();
+        foreach ($categories as $category){
+            if($category->level == 0){
+                array_push($categoriesByDiscount, $category);
+            }else{
+                $parent = $category->mainCategory;
+                $category->discount = $this->getDiscount($category, $parent);
+                array_push($categoriesByDiscount, $category);
+            }
+            if($category->items){
+                foreach ($category->items as $item){
+                    if(is_null($item->discount)){
+                        $item->discount = $category->discount;
+                    }
+                }
+            }
+        }
+        return $categoriesByDiscount;
     }
+
     public function storeMain($userId)
     {
         $existCategory = Category::where('user_id',$userId)->whereNull('main_id')->first();
@@ -34,10 +53,10 @@ class CategoryService
     {
         $userId = \Auth::id();
         $mainCategory = Category::where('user_id',$userId)->where('level',0)->first();
+        //build root if not exists
         if(!$mainCategory){
             $mainCategory = $this->storeMain($userId);
         }
-
         if ($mainCategory->user_id != $userId)
             throw new UnauthorizedException('Not authorized',403);
 //        if ($mainCategory->items->count()>0)
@@ -52,13 +71,12 @@ class CategoryService
             'main_id' => $mainCategory->id,
             'user_id' => $userId,
             'level' => $newLevel,
-            'discount' => $data['discount']
+            'discount' => $data['discount']??null
         ]);
     }
 
     public function update($data, $id)
     {
-
         $category = Category::find($id);
         if($category){
             if ($category->user_id != \Auth::id())
@@ -67,13 +85,26 @@ class CategoryService
         }
     }
 
-    public function delete($id)
+    public function getById($id)
     {
-        $category = Category::find($id);
-        if ($category->user_id != \Auth::id())
-            throw new UnauthorizedException('UnAuthorized',403);
-        if ($category->parent_id == null)
-            throw new UnauthorizedException('You can\'t delete the root category');
-        return $category->delete();
+        $category = Category::where('user_id',\Auth::id())->where('id',$id)->first();
+        return $category;
     }
+
+    //get discount recursively
+    public function getDiscount(&$category, $parent){
+        if( !is_null($category->discount)){
+            return $category->discount;
+        }else{
+            while(!is_numeric($category->discount)){
+                if( !is_numeric($parent->discount)){
+                    return $this->getDiscount($category,  $parent->mainCategory);
+                }else{
+                    return $parent->discount;
+                }
+            }
+        }
+    }
+
+
 }

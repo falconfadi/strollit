@@ -18,6 +18,14 @@ class ItemService
         })->get();
     }
 
+//    public function getByCategoryId($categoryId){
+//        $userId = \Auth::id();
+//        return Item::whereHas('category',function($subQ) use($userId, $categoryId) {
+//            $subQ->where('user_id', $userId)
+//            ->where('category_id', $categoryId);
+//        })->get();
+//    }
+
     public function store($data)
     {
         $userId = \Auth::id();
@@ -34,7 +42,7 @@ class ItemService
                 'title'=> $data['title'],
                 'price'=> $data['price'],
                 'category_id'=> $categoryId,
-                'discount'=> $data['discount']
+                'discount'=> $data['discount']??null
             ]);
         }
     }
@@ -56,5 +64,10 @@ class ItemService
                 "data"=> "Not Found!!" ];
         }
     }
+    public function getById($id)
+    {
+        return Item::find($id);
+    }
+
 
 }
