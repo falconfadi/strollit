@@ -49,12 +49,7 @@ class AuthController extends Controller
         $token = $request->user()->createToken('authtoken');
 
         if ($user) {
-            $mainCategory = Category::where('user_id',$user->id)->where('level',0)->first();
-            //build root if not exists
-            if(!$mainCategory){
-                $categoryService = new CategoryService();
-                $mainCategory = $categoryService->storeMain($user->id);
-            }
+
             $user->token = $token;
             $message = 'Logged in successfully';
             return $this->response($message,$user);
